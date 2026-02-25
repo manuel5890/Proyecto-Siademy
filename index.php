@@ -337,7 +337,7 @@
             // -------------------------------ADMINISTRADOR(MODULO PERIODOS)-------------------------
 
             case '/administrador-periodo':
-                require BASE_PATH . '/app/views/dashboard/administrador/periodo .php';
+                require BASE_PATH . '/app/views/dashboard/administrador/periodo.php';
                 break;
 
             case '/administrador/guardar-periodo':
