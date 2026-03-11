@@ -65,11 +65,11 @@ function registrarPeriodo(){
         // Si se envían arrays (nombre[] / fecha_inicio[] / fecha_fin[]), se procesan todos en bucle
 
         // CAPTURAMOS EL ID DE LA INSTITUCIÓN DEL ADMIN LOGUEADO
-        session_start();
-        if(!isset($_SESSION['user']['id_institucion'])){
-            mostrarSweetAlert('error', 'Error de sesión', 'No se encontró la institución del administrador.');
-            exit();
-        }
+        // session_start();
+        // if(!isset($_SESSION['user']['id_institucion'])){
+        //     mostrarSweetAlert('error', 'Error de sesión', 'No se encontró la institución del administrador.');
+        //     exit();
+        // }
         $id_institucion = $_SESSION['user']['id_institucion'];
 
         $objetoPeriodo = new Periodo();
