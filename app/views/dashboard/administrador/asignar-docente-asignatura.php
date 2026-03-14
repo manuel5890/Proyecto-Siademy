@@ -466,32 +466,15 @@ $usuario = mostrarPerfil($id);
               <?php
               // Obtener el ID del curso desde el parámetro GET
               $curso_preseleccionado_id = $_GET['curso'] ?? null;
-              $curso_preseleccionado_texto = '';
-
-              // Buscar el nombre completo del curso preseleccionado
-              if ($curso_preseleccionado_id) {
-                foreach ($cursos as $curso) {
-                  if ($curso['id'] == $curso_preseleccionado_id) {
-                    $curso_preseleccionado_texto = $curso['nombre_curso'] . ' - ' . $curso['jornada'];
-                    if (isset($curso['director']) && $curso['director']) {
-                      $curso_preseleccionado_texto .= ' (' . $curso['director'] . ')';
-                    }
-                    break;
-                  }
-                }
-              }
               ?>
-              <input
-                type="text"
-                class="form-control"
-                name="curso_display"
-                id="inputCursoDisplay"
-                value="<?= htmlspecialchars($curso_preseleccionado_texto) ?>"
-                placeholder="Ingrese el curso..."
-                required
-                readonly>
-              <!-- Campo oculto con el ID real -->
-              <input type="hidden" name="curso" id="inputCurso" value="<?= htmlspecialchars($curso_preseleccionado_id ?? '') ?>">
+              <select id="selectCurso" class="form-select select2" name="curso" required data-placeholder="Seleccione un curso...">
+                <option value=""></option>
+                <?php foreach ($cursos as $curso): ?>
+                  <option value="<?= $curso['id'] ?>" <?= ($curso_preseleccionado_id && $curso_preseleccionado_id == $curso['id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($curso['nombre_curso'] . ' - ' . $curso['jornada'] . (isset($curso['director']) && $curso['director'] ? ' (' . $curso['director'] . ')' : '')) ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
             </div>
           </div>
 
@@ -638,6 +621,18 @@ $usuario = mostrarPerfil($id);
           return $(this).data('placeholder') || 'Seleccione una opción...';
         }
       });
+
+      // Sincronizar el campo de texto con el select de cursos
+      const $selectCurso = $('#selectCurso');
+      const $inputCursoDisplay = $('#inputCursoDisplay');
+
+      function actualizarCursoDisplay() {
+        const selected = $selectCurso.find('option:selected');
+        $inputCursoDisplay.val(selected.text());
+      }
+
+      $selectCurso.on('change', actualizarCursoDisplay);
+      actualizarCursoDisplay();
 
       // Si hay un curso pre-seleccionado, hacer scroll hasta el formulario
       <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
