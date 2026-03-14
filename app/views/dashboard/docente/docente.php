@@ -5,6 +5,14 @@
 
   // LLAMAMOS LA FUNCION ESPECIFICA QUE EXISTE EN DICHO CONTROLADOR
   $datos = mostrarCursos();
+
+  //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+  require_once BASE_PATH . '/app/controllers/perfil.php';
+
+  // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+  $id = $_SESSION['user']['id'];
+  // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+  $usuario = mostrarPerfil($id);
 ?>
 
 <!doctype html>
@@ -50,6 +58,9 @@
           <i class="ri-search-2-line"></i>
           <input type="text" placeholder="Buscar">
         </div>
+        <?php
+          include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+        ?>
       
       </div>
 
@@ -266,6 +277,8 @@
 <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script src="<?= BASE_URL ?>/public/assets/dashboard/js/main-docente.js"></script>
+<script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>
+
 
 </body>
 

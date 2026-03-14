@@ -167,6 +167,14 @@
     $sinMarcar = count(array_filter($estudiantes, fn($e) => $e['asistencia_hoy'] === null));
     
     $porcentajeAsistencia = $totalEstudiantes > 0 ? round(($presentes / $totalEstudiantes) * 100, 1) : 0;
+
+    //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+    require_once BASE_PATH . '/app/controllers/perfil.php';
+
+    // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+    $id = $_SESSION['user']['id'];
+    // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+    $usuario = mostrarPerfil($id);
 ?>
 
 <!doctype html>
@@ -175,649 +183,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SIADEMY • Gestión de Asistencia</title>
-    <?php include_once __DIR__ . '/../../layouts/header_coordinador.php' ?>
-    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-admin.css">
-    
-    <style>
-        /* ============================================
-           ESTILOS BASE Y ESTRUCTURA
-        ============================================ */
-        .main {
-            padding: 28px 0 40px 0 !important;
-        }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/docente/asistencia.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-docente.css">
 
-        .topbar {
-            padding-left: 28px !important;
-            padding-right: 28px !important;
-        }
-
-        /* ============================================
-           SECCIÓN DE FILTROS - LO MÁS IMPORTANTE
-        ============================================ */
-        .filters-section {
-            padding: 24px 28px;
-            background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
-            border-bottom: 2px solid rgba(79, 70, 229, 0.2);
-            margin-bottom: 24px;
-        }
-
-        .filters-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .filters-header h3 {
-            color: #e6e9f4;
-            font-size: 18px;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .filters-header .badge {
-            padding: 4px 10px;
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .filters-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr auto;
-            gap: 16px;
-            align-items: end;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .filter-label {
-            color: #97a1b6;
-            font-size: 13px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .filter-label i {
-            color: #6366f1;
-            font-size: 16px;
-        }
-
-        .filter-select,
-        .filter-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #e6e9f4;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .filter-select:focus,
-        .filter-input:focus {
-            outline: none;
-            border-color: rgba(79, 70, 229, 0.5);
-            background: rgba(79, 70, 229, 0.1);
-        }
-
-        .filter-select option {
-            background: #1e293b;
-            color: #e6e9f4;
-            padding: 12px;
-        }
-
-        .filter-btn {
-            padding: 12px 24px;
-            background: #4f46e5;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            white-space: nowrap;
-        }
-
-        .filter-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.3);
-        }
-
-        .filter-btn i {
-            font-size: 18px;
-        }
-
-        /* Mensaje cuando no hay selección */
-        .no-selection-message {
-            background: rgba(245, 158, 11, 0.1);
-            border: 2px dashed rgba(245, 158, 11, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 0 28px 24px 28px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .no-selection-message i {
-            font-size: 32px;
-            color: #f59e0b;
-        }
-
-        .no-selection-message-content h4 {
-            color: #e6e9f4;
-            margin: 0 0 6px 0;
-            font-size: 16px;
-            font-weight: 600;
-        }
-
-        .no-selection-message-content p {
-            color: #97a1b6;
-            margin: 0;
-            font-size: 14px;
-        }
-
-        /* Información del contexto actual */
-        .context-info {
-            padding: 16px 28px;
-            background: rgba(79, 70, 229, 0.05);
-            border-left: 4px solid #6366f1;
-            margin: 0 28px 24px 28px;
-            border-radius: 0 8px 8px 0;
-        }
-
-        .context-info-content {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-        }
-
-        .context-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #e6e9f4;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .context-item i {
-            color: #6366f1;
-            font-size: 18px;
-        }
-
-        .context-item strong {
-            color: #6366f1;
-        }
-
-        /* ============================================
-           RESTO DE ESTILOS (HEREDADOS DEL ANTERIOR)
-        ============================================ */
-        .attendance-stats {
-            padding: 24px 28px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 16px;
-        }
-
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(79, 70, 229, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .stat-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            flex-shrink: 0;
-        }
-
-        .stat-content {
-            flex: 1;
-        }
-
-        .stat-label {
-            display: block;
-            color: #97a1b6;
-            font-size: 13px;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        .stat-value {
-            display: block;
-            color: #e6e9f4;
-            font-size: 28px;
-            font-weight: 700;
-            line-height: 1;
-        }
-
-        .stat-percentage {
-            font-size: 14px;
-            margin-left: 8px;
-            opacity: 0.7;
-        }
-
-        .stat-card.presentes .stat-icon {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        }
-
-        .stat-card.ausentes .stat-icon {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-        }
-
-        .stat-card.tardanzas .stat-icon {
-            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-        }
-
-        .stat-card.excusas .stat-icon {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-        }
-
-        .stat-card.sin-marcar .stat-icon {
-            background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-        }
-
-        .attendance-controls {
-            padding: 24px 28px;
-            background: rgba(79, 70, 229, 0.05);
-            border-bottom: 1px solid rgba(79, 70, 229, 0.1);
-        }
-
-        .controls-grid {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .controls-left {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .controls-right {
-            display: flex;
-            gap: 12px;
-        }
-
-        .quick-action-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 20px;
-            background: rgba(79, 70, 229, 0.1);
-            color: #6366f1;
-            border: 1px solid rgba(79, 70, 229, 0.2);
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .quick-action-btn:hover {
-            background: rgba(79, 70, 229, 0.2);
-            border-color: rgba(79, 70, 229, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .quick-action-btn i {
-            font-size: 18px;
-        }
-
-        .quick-action-btn.success {
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border-color: rgba(16, 185, 129, 0.2);
-        }
-
-        .quick-action-btn.success:hover {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: rgba(16, 185, 129, 0.4);
-        }
-
-        .quick-action-btn.danger {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border-color: rgba(239, 68, 68, 0.2);
-        }
-
-        .quick-action-btn.danger:hover {
-            background: rgba(239, 68, 68, 0.2);
-            border-color: rgba(239, 68, 68, 0.4);
-        }
-
-        .search-box {
-            position: relative;
-            flex: 1;
-            max-width: 300px;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 12px 16px 12px 44px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: #e6e9f4;
-            font-size: 14px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6366f1;
-            font-size: 18px;
-        }
-
-        .attendance-table-wrapper {
-            padding: 24px 28px;
-        }
-
-        .attendance-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            overflow: hidden;
-        }
-
-        .attendance-table thead {
-            background: rgba(79, 70, 229, 0.1);
-        }
-
-        .attendance-table th {
-            padding: 16px;
-            text-align: left;
-            color: #e6e9f4;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 1px solid rgba(79, 70, 229, 0.2);
-        }
-
-        .attendance-table tbody tr {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.2s ease;
-        }
-
-        .attendance-table tbody tr:hover {
-            background: rgba(79, 70, 229, 0.05);
-        }
-
-        .attendance-table td {
-            padding: 16px;
-            color: #97a1b6;
-            font-size: 14px;
-        }
-
-        .student-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .student-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            object-fit: cover;
-            border: 2px solid rgba(79, 70, 229, 0.2);
-        }
-
-        .student-name {
-            font-weight: 600;
-            color: #e6e9f4;
-            font-size: 15px;
-            margin-bottom: 2px;
-        }
-
-        .student-document {
-            color: #6b7280;
-            font-size: 12px;
-        }
-
-        .attendance-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .attendance-btn {
-            width: 40px;
-            height: 40px;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 18px;
-            position: relative;
-        }
-
-        .attendance-btn:hover {
-            transform: scale(1.1);
-        }
-
-        .attendance-btn.active {
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-        }
-
-        .attendance-btn.presente {
-            background: rgba(16, 185, 129, 0.15);
-            color: #10b981;
-        }
-
-        .attendance-btn.presente:hover,
-        .attendance-btn.presente.active {
-            background: #10b981;
-            color: white;
-            border-color: #10b981;
-        }
-
-        .attendance-btn.ausente {
-            background: rgba(239, 68, 68, 0.15);
-            color: #ef4444;
-        }
-
-        .attendance-btn.ausente:hover,
-        .attendance-btn.ausente.active {
-            background: #ef4444;
-            color: white;
-            border-color: #ef4444;
-        }
-
-        .attendance-btn.tardanza {
-            background: rgba(245, 158, 11, 0.15);
-            color: #f59e0b;
-        }
-
-        .attendance-btn.tardanza:hover,
-        .attendance-btn.tardanza.active {
-            background: #f59e0b;
-            color: white;
-            border-color: #f59e0b;
-        }
-
-        .attendance-btn.excusa {
-            background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
-        }
-
-        .attendance-btn.excusa:hover,
-        .attendance-btn.excusa.active {
-            background: #3b82f6;
-            color: white;
-            border-color: #3b82f6;
-        }
-
-        .attendance-btn::before {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-8px);
-            padding: 6px 10px;
-            background: #1f2937;
-            color: #e6e9f4;
-            border-radius: 6px;
-            font-size: 11px;
-            white-space: nowrap;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.2s ease;
-            z-index: 10;
-        }
-
-        .attendance-btn:hover::before {
-            opacity: 1;
-        }
-
-        .save-button-floating {
-            position: fixed;
-            bottom: 32px;
-            right: 32px;
-            padding: 16px 32px;
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
-            display: none;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .save-button-floating.visible {
-            display: flex;
-        }
-
-        .save-button-floating:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(16, 185, 129, 0.5);
-        }
-
-        .save-button-floating i {
-            font-size: 20px;
-        }
-
-        .changes-count {
-            padding: 4px 10px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .attendance-legend {
-            padding: 20px 28px;
-            background: rgba(79, 70, 229, 0.05);
-            border-top: 1px solid rgba(79, 70, 229, 0.1);
-        }
-
-        .legend-title {
-            color: #e6e9f4;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 12px;
-        }
-
-        .legend-items {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: #97a1b6;
-        }
-
-        .legend-icon {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-        }
-
-        @media (max-width: 1024px) {
-            .filters-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .filters-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .attendance-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .controls-grid {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .search-box {
-                max-width: 100%;
-            }
-        }
-    </style>
 </head>
 
 <body>
@@ -833,11 +206,9 @@
                     <div class="title">Gestión de Asistencia</div>
                 </div>
 
-                <div class="user">
-                    <button class="btn" title="Notificaciones"><i class="ri-notification-3-line"></i></button>
-                    <button class="btn" title="Configuración"><i class="ri-settings-3-line"></i></button>
-                    <div class="avatar" title="Docente">DC</div>
-                </div>
+                <?php
+                    include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+                ?>
             </div>
 
             <!-- FILTROS - SECCIÓN PRINCIPAL -->
@@ -1179,7 +550,7 @@
         let estadoOriginal = {};
 
         // Datos de asignaturas por curso (para actualización dinámica)
-        const cursosData = <?= json_encode($mis_cursos_asignaturas) ?>;
+        const cursosData = <?= isset($mis_cursos_asignaturas) ? json_encode($mis_cursos_asignaturas) : '[]' ?>;
 
         // ============================================
         // ACTUALIZAR SELECT DE ASIGNATURAS
@@ -1195,7 +566,7 @@
             if (cursoId) {
                 // Buscar las asignaturas del curso seleccionado
                 const cursoData = cursosData.find(c => c.id_curso == cursoId);
-                
+
                 if (cursoData && cursoData.asignaturas) {
                     cursoData.asignaturas.forEach(asig => {
                         const option = document.createElement('option');
@@ -1204,7 +575,7 @@
                         selectAsignatura.appendChild(option);
                     });
                 }
-                
+
                 selectAsignatura.disabled = false;
             } else {
                 selectAsignatura.disabled = true;
@@ -1212,7 +583,7 @@
         }
 
         // Guardar estado original al cargar
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const filas = document.querySelectorAll('.student-row');
             filas.forEach(fila => {
                 const studentId = fila.getAttribute('data-student-id');
@@ -1229,12 +600,12 @@
             const fila = boton.closest('.student-row');
             const statusElement = fila.querySelector('.current-status');
             const botonesAsistencia = fila.querySelectorAll('.attendance-btn');
-            
+
             botonesAsistencia.forEach(btn => btn.classList.remove('active'));
             boton.classList.add('active');
-            
+
             let nuevoHTML = '';
-            switch(tipo) {
+            switch (tipo) {
                 case 'P':
                     nuevoHTML = '<span style="color: #10b981; font-weight: 600;"><i class="ri-checkbox-circle-fill"></i> Presente</span>';
                     break;
@@ -1248,16 +619,16 @@
                     nuevoHTML = '<span style="color: #3b82f6; font-weight: 600;"><i class="ri-file-text-fill"></i> Excusa</span>';
                     break;
             }
-            
+
             statusElement.innerHTML = nuevoHTML;
             statusElement.setAttribute('data-status', tipo);
-            
+
             if (estadoOriginal[studentId] !== tipo) {
                 cambiosPendientes[studentId] = tipo;
             } else {
                 delete cambiosPendientes[studentId];
             }
-            
+
             actualizarEstadisticas();
             mostrarBotonGuardar();
         }
@@ -1269,7 +640,7 @@
             if (!confirm('¿Estás seguro de marcar a TODOS los estudiantes como presentes?')) {
                 return;
             }
-            
+
             const filas = document.querySelectorAll('.student-row');
             filas.forEach(fila => {
                 const studentId = fila.getAttribute('data-student-id');
@@ -1285,25 +656,25 @@
             if (!confirm('¿Estás seguro de limpiar toda la asistencia? Esta acción no se puede deshacer.')) {
                 return;
             }
-            
+
             const filas = document.querySelectorAll('.student-row');
             filas.forEach(fila => {
                 const studentId = fila.getAttribute('data-student-id');
                 const statusElement = fila.querySelector('.current-status');
                 const botonesAsistencia = fila.querySelectorAll('.attendance-btn');
-                
+
                 botonesAsistencia.forEach(btn => btn.classList.remove('active'));
-                
+
                 statusElement.innerHTML = '<span style="color: #6b7280; font-weight: 600;"><i class="ri-question-fill"></i> Sin marcar</span>';
                 statusElement.setAttribute('data-status', '');
-                
+
                 if (estadoOriginal[studentId] !== null && estadoOriginal[studentId] !== '') {
                     cambiosPendientes[studentId] = null;
                 } else {
                     delete cambiosPendientes[studentId];
                 }
             });
-            
+
             actualizarEstadisticas();
             mostrarBotonGuardar();
         }
@@ -1314,10 +685,10 @@
         function actualizarEstadisticas() {
             const filas = document.querySelectorAll('.student-row');
             let presentes = 0, ausentes = 0, tardanzas = 0, excusas = 0, sinMarcar = 0;
-            
+
             filas.forEach(fila => {
                 const status = fila.querySelector('.current-status').getAttribute('data-status');
-                switch(status) {
+                switch (status) {
                     case 'P': presentes++; break;
                     case 'A': ausentes++; break;
                     case 'T': tardanzas++; break;
@@ -1325,11 +696,11 @@
                     default: sinMarcar++; break;
                 }
             });
-            
+
             const total = filas.length;
             const porcentaje = total > 0 ? Math.round((presentes / total) * 100 * 10) / 10 : 0;
-            
-            document.querySelector('.stat-card.presentes .stat-value').innerHTML = 
+
+            document.querySelector('.stat-card.presentes .stat-value').innerHTML =
                 `${presentes} <span class="stat-percentage">(${porcentaje}%)</span>`;
             document.querySelector('.stat-card.ausentes .stat-value').textContent = ausentes;
             document.querySelector('.stat-card.tardanzas .stat-value').textContent = tardanzas;
@@ -1344,7 +715,7 @@
             const saveButton = document.getElementById('saveButton');
             const changesCount = document.getElementById('changesCount');
             const numCambios = Object.keys(cambiosPendientes).length;
-            
+
             if (numCambios > 0) {
                 saveButton.classList.add('visible');
                 changesCount.textContent = numCambios;
@@ -1358,14 +729,14 @@
         // ============================================
         const saveBtn = document.getElementById('saveButton');
         if (saveBtn) {
-            saveBtn.addEventListener('click', function() {
+            saveBtn.addEventListener('click', function () {
                 if (Object.keys(cambiosPendientes).length === 0) {
                     alert('No hay cambios pendientes por guardar.');
                     return;
                 }
-                
+
                 console.log('Guardando asistencia:', cambiosPendientes);
-                
+
                 // TODO: Implementar AJAX real
                 /*
                 fetch('<?= BASE_URL ?>/api/guardar-asistencia', {
@@ -1390,10 +761,10 @@
                     }
                 });
                 */
-                
-                alert('✅ Asistencia guardada exitosamente!\n\n' + 
-                      'Cambios realizados: ' + Object.keys(cambiosPendientes).length);
-                
+
+                alert('✅ Asistencia guardada exitosamente!\n\n' +
+                    'Cambios realizados: ' + Object.keys(cambiosPendientes).length);
+
                 cambiosPendientes = {};
                 mostrarBotonGuardar();
             });
@@ -1406,11 +777,11 @@
             const input = document.getElementById('searchStudent');
             const filter = input.value.toLowerCase();
             const filas = document.querySelectorAll('.student-row');
-            
+
             filas.forEach(fila => {
                 const nombre = fila.querySelector('.student-name').textContent.toLowerCase();
                 const documento = fila.querySelector('.student-doc').textContent.toLowerCase();
-                
+
                 if (nombre.includes(filter) || documento.includes(filter)) {
                     fila.style.display = '';
                 } else {
@@ -1429,13 +800,13 @@
         // ============================================
         // ATAJOS DE TECLADO
         // ============================================
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 const saveBtn = document.getElementById('saveButton');
                 if (saveBtn) saveBtn.click();
             }
-            
+
             if ((e.ctrlKey || e.metaKey) && e.key === 'a' && e.shiftKey) {
                 e.preventDefault();
                 marcarTodosPresentes();
@@ -1445,7 +816,7 @@
         // ============================================
         // ADVERTENCIA AL SALIR
         // ============================================
-        window.addEventListener('beforeunload', function(e) {
+        window.addEventListener('beforeunload', function (e) {
             if (Object.keys(cambiosPendientes).length > 0) {
                 e.preventDefault();
                 e.returnValue = '¿Estás seguro? Tienes cambios sin guardar.';
@@ -1454,13 +825,7 @@
         });
     </script>
     
-    <style>
-        .appGrid,
-        .app {
-            display: grid !important;
-            grid-template-columns: 260px 1fr !important;
-        }
-    </style>
+    <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>
     
 </body>   
 </html>

@@ -5,6 +5,14 @@
 
   // LLAMAMOS LA FUNCION ESPECIFICA QUE EXISTE EN DICHO CONTROLADOR
   $datos = mostrarCursos();
+
+  //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+  require_once BASE_PATH . '/app/controllers/perfil.php';
+
+  // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+  $id = $_SESSION['user']['id'];
+  // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+  $usuario = mostrarPerfil($id);
 ?>
 <!doctype html>
 <html lang="es">
@@ -38,7 +46,10 @@
           </button>
           <div class="title">Mis Cursos</div>
         </div>
-       
+
+        <?php
+          include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+        ?>
        
       </div>
 
@@ -261,6 +272,8 @@
   <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="<?= BASE_URL ?>/public/assets/dashboard/js/docente/cursos.js"></script>
+  <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>
+
 </body>
 
 </html>
