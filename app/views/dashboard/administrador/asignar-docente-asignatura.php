@@ -1,5 +1,13 @@
-<?php 
-  require_once BASE_PATH . '/app/helpers/session_administrador.php';
+<?php
+require_once BASE_PATH . '/app/helpers/session_administrador.php';
+
+//ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+require_once BASE_PATH . '/app/controllers/perfil.php';
+
+// LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+$id = $_SESSION['user']['id'];
+// LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+$usuario = mostrarPerfil($id);
 ?>
 
 <!doctype html>
@@ -10,13 +18,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SIADEMY • Asignar Docentes</title>
   <?php
-    include_once __DIR__ . '/../../layouts/header_coordinador.php'
+  include_once __DIR__ . '/../../layouts/header_coordinador.php'
   ?>
+
   <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-admin.css">
-  
+
+  <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-admin.css">
+
   <!-- Select2 para mejorar los selects -->
   <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-  
+
   <style>
     /* Layout de 2 columnas sin sidebar derecho */
     .app {
@@ -67,7 +78,8 @@
       margin-right: 6px;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
       width: 100%;
       background: #0f1736;
       border: 1px solid var(--border);
@@ -78,7 +90,8 @@
       transition: all 0.2s ease;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus,
+    .form-select:focus {
       border-color: var(--brand);
       outline: none;
       box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
@@ -335,10 +348,12 @@
     }
 
     @media (max-width: 768px) {
-      .form-card, .table-card {
+
+      .form-card,
+      .table-card {
         padding: 16px;
       }
-      
+
       .data-table {
         font-size: 12px;
       }
@@ -350,8 +365,8 @@
     }
 
     select:disabled {
-  background-color: #e9ecef !important;
-}
+      background-color: #e9ecef !important;
+    }
   </style>
 </head>
 
@@ -369,18 +384,22 @@
           </button>
           <div class="title">Agregar Asignatura</div>
         </div>
+
+        <?php
+        include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+        ?>
       </div>
 
-      <?php 
+      <?php
       // Mostrar alerta si existe
-      if(isset($_SESSION['alerta'])){
-          $alerta = $_SESSION['alerta'];
-          echo '<div class="alert alert-'.$alerta['tipo'].'">';
-          echo '<i class="ri-information-line"></i>';
-          echo '<span>'.$alerta['mensaje'].'</span>';
-          echo '<button class="btn-close" onclick="this.parentElement.remove()"><i class="ri-close-line"></i></button>';
-          echo '</div>';
-          unset($_SESSION['alerta']);
+      if (isset($_SESSION['alerta'])) {
+        $alerta = $_SESSION['alerta'];
+        echo '<div class="alert alert-' . $alerta['tipo'] . '">';
+        echo '<i class="ri-information-line"></i>';
+        echo '<span>' . $alerta['mensaje'] . '</span>';
+        echo '<button class="btn-close" onclick="this.parentElement.remove()"><i class="ri-close-line"></i></button>';
+        echo '</div>';
+        unset($_SESSION['alerta']);
       }
       ?>
 
@@ -394,7 +413,7 @@
           <strong>Nota:</strong> El sistema creará automáticamente la relación entre asignatura-curso si no existe
         </div> -->
 
-        <?php if(isset($_GET['curso']) && !empty($_GET['curso'])): ?>
+        <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
           <div class="alert alert-success">
             <i class="ri-checkbox-circle-line"></i>
             <span><strong>¡Curso pre-seleccionado!</strong> El curso actual ya está seleccionado en el formulario.</span>
@@ -403,16 +422,16 @@
 
         <form action="<?= BASE_URL ?>/administrador/asignar-docentes" method="POST">
           <input type="hidden" name="accion" value="asignar">
-          
+
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-             <!-- SELECCIONAR ASIGNATURA -->
+            <!-- SELECCIONAR ASIGNATURA -->
             <div class="form-group">
               <label>
                 <i class="ri-book-2-line"></i> Asignatura
               </label>
               <select class="form-select select2" name="asignatura" required>
                 <option value="">Seleccione una asignatura...</option>
-                <?php foreach($asignaturas as $asignatura): ?>
+                <?php foreach ($asignaturas as $asignatura): ?>
                   <option value="<?= $asignatura['id'] ?>">
                     <?= htmlspecialchars($asignatura['nombre']) ?>
                   </option>
@@ -426,10 +445,10 @@
               </label>
               <select class="form-select select2" name="docente" required>
                 <option value="">Seleccione un docente...</option>
-                <?php foreach($docentes as $docente): ?>
+                <?php foreach ($docentes as $docente): ?>
                   <option value="<?= $docente['id'] ?>">
                     <?= htmlspecialchars($docente['nombre_completo']) ?>
-                    <?php if(isset($docente['profesion'])): ?>
+                    <?php if (isset($docente['profesion'])): ?>
                       - <?= htmlspecialchars($docente['profesion']) ?>
                     <?php endif; ?>
                   </option>
@@ -437,44 +456,43 @@
               </select>
             </div>
 
-           
+
 
             <!-- SELECCIONAR CURSO -->
-          <div class="form-group">
-  <label>
-    <i class="ri-team-line"></i> Curso
-  </label>
-  <?php
-  // Obtener el ID del curso desde el parámetro GET
-  $curso_preseleccionado_id = $_GET['curso'] ?? null;
-  $curso_preseleccionado_texto = '';
-  
-  // Buscar el nombre completo del curso preseleccionado
-  if ($curso_preseleccionado_id) {
-    foreach ($cursos as $curso) {
-      if ($curso['id'] == $curso_preseleccionado_id) {
-        $curso_preseleccionado_texto = $curso['nombre_curso'] . ' - ' . $curso['jornada'];
-        if (isset($curso['director']) && $curso['director']) {
-          $curso_preseleccionado_texto .= ' (' . $curso['director'] . ')';
-        }
-        break;
-      }
-    }
-  }
-  ?>
-  <input 
-    type="text" 
-    class="form-control" 
-    name="curso_display" 
-    id="inputCursoDisplay"
-    value="<?= htmlspecialchars($curso_preseleccionado_texto) ?>" 
-    placeholder="Ingrese el curso..."
-    required
-    readonly
-  >
-  <!-- Campo oculto con el ID real -->
-  <input type="hidden" name="curso" id="inputCurso" value="<?= htmlspecialchars($curso_preseleccionado_id ?? '') ?>">
-</div>
+            <div class="form-group">
+              <label>
+                <i class="ri-team-line"></i> Curso
+              </label>
+              <?php
+              // Obtener el ID del curso desde el parámetro GET
+              $curso_preseleccionado_id = $_GET['curso'] ?? null;
+              $curso_preseleccionado_texto = '';
+
+              // Buscar el nombre completo del curso preseleccionado
+              if ($curso_preseleccionado_id) {
+                foreach ($cursos as $curso) {
+                  if ($curso['id'] == $curso_preseleccionado_id) {
+                    $curso_preseleccionado_texto = $curso['nombre_curso'] . ' - ' . $curso['jornada'];
+                    if (isset($curso['director']) && $curso['director']) {
+                      $curso_preseleccionado_texto .= ' (' . $curso['director'] . ')';
+                    }
+                    break;
+                  }
+                }
+              }
+              ?>
+              <input
+                type="text"
+                class="form-control"
+                name="curso_display"
+                id="inputCursoDisplay"
+                value="<?= htmlspecialchars($curso_preseleccionado_texto) ?>"
+                placeholder="Ingrese el curso..."
+                required
+                readonly>
+              <!-- Campo oculto con el ID real -->
+              <input type="hidden" name="curso" id="inputCurso" value="<?= htmlspecialchars($curso_preseleccionado_id ?? '') ?>">
+            </div>
           </div>
 
           <div style="text-align: right; margin-top: 24px;">
@@ -491,27 +509,27 @@
         <div class="table-card-header" style="display: flex; justify-content: space-between; align-items: center;">
           <h3>
             <i class="ri-list-check"></i> Asignaciones Actuales (<?= count($asignaciones) ?>)
-            <?php if(isset($_GET['curso']) && !empty($_GET['curso'])): ?>
+            <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
               <span style="font-size: 14px; color: var(--muted); font-weight: 400; margin-left: 8px;">
                 • Filtrando por curso
               </span>
             <?php endif; ?>
           </h3>
-          <?php if(isset($_GET['curso']) && !empty($_GET['curso'])): ?>
-            <a href="<?= BASE_URL ?>/administrador/asignar-docentes" 
-               style="padding: 8px 16px; background: rgba(255, 176, 32, 0.15); color: var(--accent); border-radius: 8px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;"
-               onmouseover="this.style.background='rgba(255, 176, 32, 0.25)'"
-               onmouseout="this.style.background='rgba(255, 176, 32, 0.15)'">
+          <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
+            <a href="<?= BASE_URL ?>/administrador/asignar-docentes"
+              style="padding: 8px 16px; background: rgba(255, 176, 32, 0.15); color: var(--accent); border-radius: 8px; text-decoration: none; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s ease;"
+              onmouseover="this.style.background='rgba(255, 176, 32, 0.25)'"
+              onmouseout="this.style.background='rgba(255, 176, 32, 0.15)'">
               <i class="ri-filter-off-line"></i>
               Mostrar Todas
             </a>
           <?php endif; ?>
         </div>
-        
-        <?php if(empty($asignaciones)): ?>
+
+        <?php if (empty($asignaciones)): ?>
           <div class="empty-state">
             <i class="ri-file-list-3-line"></i>
-            <?php if(isset($_GET['curso']) && !empty($_GET['curso'])): ?>
+            <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
               <h5>No hay asignaciones para este curso</h5>
               <p>Este curso aún no tiene docentes asignados. Usa el formulario de arriba para asignar el primer docente.</p>
             <?php else: ?>
@@ -535,7 +553,7 @@
                 </tr>
               </thead>
               <tbody>
-                <?php foreach($asignaciones as $index => $asig): ?>
+                <?php foreach ($asignaciones as $index => $asig): ?>
                   <tr>
                     <td><strong><?= $index + 1 ?></strong></td>
                     <td>
@@ -556,7 +574,7 @@
                       </span>
                     </td>
                     <td>
-                      <?php if($asig['estado'] === 'activo'): ?>
+                      <?php if ($asig['estado'] === 'activo'): ?>
                         <span class="badge badge-success">
                           <i class="ri-checkbox-circle-line"></i>
                           Activo
@@ -574,20 +592,20 @@
                       </small>
                     </td>
                     <td style="text-align: center;">
-                    <div style="display: inline-flex; gap: 8px;">
-                    <?php 
-                    // Mantener el parámetro de curso en las acciones
-                    $curso_param = isset($_GET['curso']) ? '&curso=' . $_GET['curso'] : '';
-                    ?>
-                    <a href="<?= BASE_URL ?>/administrador/asignar-docentes?accion=cambiar_estado&id=<?= $asig['id'] ?>&estado=<?= $asig['estado'] ?><?= $curso_param ?>" 
-                       class="btn-action btn-warning" 
-                    title="Cambiar estado">
-                    <i class="ri-toggle-line"></i>
-                    </a>
-                    <a href="<?= BASE_URL ?>/administrador/asignar-docentes?accion=eliminar&id=<?= $asig['id'] ?><?= $curso_param ?>" 
-                       class="btn-action btn-danger" 
-                         onclick="return confirm('¿Está seguro de eliminar esta asignación?')" 
-                           title="Eliminar">
+                      <div style="display: inline-flex; gap: 8px;">
+                        <?php
+                        // Mantener el parámetro de curso en las acciones
+                        $curso_param = isset($_GET['curso']) ? '&curso=' . $_GET['curso'] : '';
+                        ?>
+                        <a href="<?= BASE_URL ?>/administrador/asignar-docentes?accion=cambiar_estado&id=<?= $asig['id'] ?>&estado=<?= $asig['estado'] ?><?= $curso_param ?>"
+                          class="btn-action btn-warning"
+                          title="Cambiar estado">
+                          <i class="ri-toggle-line"></i>
+                        </a>
+                        <a href="<?= BASE_URL ?>/administrador/asignar-docentes?accion=eliminar&id=<?= $asig['id'] ?><?= $curso_param ?>"
+                          class="btn-action btn-danger"
+                          onclick="return confirm('¿Está seguro de eliminar esta asignación?')"
+                          title="Eliminar">
                           <i class="ri-delete-bin-line"></i>
                         </a>
                       </div>
@@ -607,7 +625,9 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dashboard.js"></script>
-  
+
+  <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>                     
+
   <script>
     $(document).ready(function() {
       // Inicializar Select2
@@ -620,7 +640,7 @@
       });
 
       // Si hay un curso pre-seleccionado, hacer scroll hasta el formulario
-      <?php if(isset($_GET['curso']) && !empty($_GET['curso'])): ?>
+      <?php if (isset($_GET['curso']) && !empty($_GET['curso'])): ?>
         // Resaltar visualmente el select de curso
         $('#selectCurso').parent().find('.select2-container').css({
           'border': '2px solid #10b981',
@@ -644,4 +664,5 @@
     });
   </script>
 </body>
+
 </html>

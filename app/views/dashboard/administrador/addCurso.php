@@ -6,7 +6,13 @@
     $datos = mostrarDocentes();
     $nivel = mostrarNivelAcademico();
 
+    //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+    require_once BASE_PATH . '/app/controllers/perfil.php';
 
+    // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+    $id = $_SESSION['user']['id'];
+    // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+    $usuario = mostrarPerfil($id);
 ?>
 <!doctype html>
 <html lang="es">
@@ -20,11 +26,14 @@
     ?>
       <!-- CSS de Choices.js (colócalo en <head> o antes de tu CSS principal) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-admin.css">
+
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-tabla-formulario.css">
 
     <style>
                 /* Igual altura */
-    .select-similar {
+        .select-similar {
         height: 45px;
         padding: 8px 12px;
         font-size: 15px;
@@ -32,19 +41,19 @@
         border: 1px solid #ced4da;
         background-color: #fff;
         cursor: pointer;
-    }
+        }
 
-    /* Simular estilo de choices */
-    .select-similar:focus {
+        /* Simular estilo de choices */
+        .select-similar:focus {
         border-color: #86b7fe;
         box-shadow: 0 0 0 3px rgba(13,110,253,.25);
-    }
+        }
 
-    /* Apariencia más parecida */
-    .select-similar:hover {
+        /* Apariencia más parecida */
+        .select-similar:hover {
         border-color: #999;
-    }
-</style>
+        }
+    </style>
 </head>
 <body>
     <div class="app" id="appGrid">
@@ -64,11 +73,9 @@
                     
                 </div>
 
-                <div class="user">
-                    <button class="btn" title="Notificaciones"><i class="ri-notification-3-line"></i></button>
-                    <button class="btn" title="Configuración"><i class="ri-settings-3-line"></i></button>
-                    <div class="avatar" title="Diego A.">DA</div>
-                </div>
+                <?php
+                    include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+                ?>
             </div>
             <div class="subtitulo"><p>Formulario de registro, Completa los siguientes pasos para registrar un nuevo Curso en el sistema académico. <br> Al finalizar, revisa la información antes de confirmar el registro para evitar errores en la base de datos institucional.</p></div>
 
@@ -200,20 +207,23 @@
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+    <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>
+
     <script src="<?=BASE_URL ?>/public/assets/dashboard/js/main-formulario.js"></script>
     <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const select = document.getElementById('selectAcudiente');
+        document.addEventListener('DOMContentLoaded', function () {
+        const select = document.getElementById('selectAcudiente');
 
-    // Todas las opciones reales
-    const allChoices = Array.from(select.querySelectorAll('option'))
+        // Todas las opciones reales
+        const allChoices = Array.from(select.querySelectorAll('option'))
         .filter(opt => opt.value !== '' && !opt.disabled)
         .map(opt => ({
             value: opt.value,
             label: opt.textContent.trim()
         }));
 
-    const choices = new Choices(select, {
+        const choices = new Choices(select, {
         searchEnabled: true,
         shouldSort: false,
         placeholder: true,
@@ -222,72 +232,72 @@ document.addEventListener('DOMContentLoaded', function () {
         removeItemButton: false,
         choices: [],
         position: 'bottom'
-    });
+        });
 
-    /* ===========================
-       TABINDEX REAL (CLAVE)
-    =========================== */
-    setTimeout(() => {
-    const choicesWrapper = select.closest('.choices');
-    if (!choicesWrapper) return;
+        /* ===========================
+        TABINDEX REAL (CLAVE)
+        =========================== */
+        setTimeout(() => {
+        const choicesWrapper = select.closest('.choices');
+        if (!choicesWrapper) return;
 
-    const inner = choicesWrapper.querySelector('.choices__inner');
-    const input = choicesWrapper.querySelector('input');
+        const inner = choicesWrapper.querySelector('.choices__inner');
+        const input = choicesWrapper.querySelector('input');
 
-    if (inner) {
-        inner.setAttribute('tabindex', '3');
-    }
-
-    if (input) {
-        input.setAttribute('tabindex', '-1'); // evita doble foco
-    }
-}, 50);
-
-
-    /* ===========================
-       MOSTRAR 4 AL ABRIR
-    =========================== */
-    select.addEventListener('showDropdown', function () {
-        choices.clearChoices();
-        choices.setChoices(allChoices.slice(0, 4), 'value', 'label', true);
-    });
-
-    /* ===========================
-       BUSCAR ESCRIBIENDO
-    =========================== */
-    select.addEventListener('search', function (event) {
-        const q = event.detail.value.trim().toLowerCase();
-        choices.clearChoices();
-
-        if (q.length === 0) {
-            choices.setChoices(allChoices.slice(0, 4), 'value', 'label', true);
-            return;
+        if (inner) {
+            inner.setAttribute('tabindex', '3');
         }
 
-        const filtered = allChoices
-            .filter(c => c.label.toLowerCase().includes(q))
-            .slice(0, 10);
-
-        if (filtered.length > 0) {
-            choices.setChoices(filtered, 'value', 'label', true);
-        } else {
-            choices.setChoices([
-                { value: '__no_results__', label: 'No se encontraron resultados', disabled: true }
-            ], 'value', 'label', true);
+        if (input) {
+            input.setAttribute('tabindex', '-1'); // evita doble foco
         }
-    });
+        }, 50);
 
-    /* ===========================
-       BLOQUEAR "NO RESULTADOS"
-    =========================== */
-    select.addEventListener('choice', function (event) {
-        if (event.detail.choice?.value === '__no_results__') {
-            event.preventDefault();
-            choices.removeActiveItems();
-        }
-    });
-});
-</script>
+
+            /* ===========================
+            MOSTRAR 4 AL ABRIR
+            =========================== */
+            select.addEventListener('showDropdown', function () {
+                choices.clearChoices();
+                choices.setChoices(allChoices.slice(0, 4), 'value', 'label', true);
+            });
+
+            /* ===========================
+            BUSCAR ESCRIBIENDO
+            =========================== */
+            select.addEventListener('search', function (event) {
+                const q = event.detail.value.trim().toLowerCase();
+                choices.clearChoices();
+
+                if (q.length === 0) {
+                    choices.setChoices(allChoices.slice(0, 4), 'value', 'label', true);
+                    return;
+                }
+
+                const filtered = allChoices
+                    .filter(c => c.label.toLowerCase().includes(q))
+                    .slice(0, 10);
+
+                if (filtered.length > 0) {
+                    choices.setChoices(filtered, 'value', 'label', true);
+                } else {
+                    choices.setChoices([
+                        { value: '__no_results__', label: 'No se encontraron resultados', disabled: true }
+                    ], 'value', 'label', true);
+                }
+            });
+
+            /* ===========================
+            BLOQUEAR "NO RESULTADOS"
+            =========================== */
+            select.addEventListener('choice', function (event) {
+                if (event.detail.choice?.value === '__no_results__') {
+                    event.preventDefault();
+                    choices.removeActiveItems();
+                }
+            });
+        });
+    </script>
 
 </body>
 

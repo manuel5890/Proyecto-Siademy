@@ -748,6 +748,23 @@ h1, h2, h3, h4, h5, h6 {
       color: var(--card);
     }
 
+    /* Anular flex: 1 de styles-admin.css para botones del formulario */
+    .botones .btn-secondary {
+      flex: none !important;
+      width: auto !important;
+    }
+
+    .botones .btn-primary {
+      flex: none !important;
+      width: auto !important;
+      margin-top: 0 !important;
+    }
+
+    .botones .btn-success {
+      flex: none !important;
+      width: auto !important;
+    }
+
     .botones button:last-child:hover {
       background-color: var(--card);
       color: var(--sidebar);

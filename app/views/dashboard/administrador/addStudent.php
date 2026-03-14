@@ -7,6 +7,13 @@
   // LLAMAMOS LA FUNCION ESPECIFICA QUE EXISTE EN DICHO CONTROLADOR
   $datos = mostrarAcudientes();
 
+  //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+  require_once BASE_PATH . '/app/controllers/perfil.php';
+
+  // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+  $id = $_SESSION['user']['id'];
+  // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+  $usuario = mostrarPerfil($id);
 
 ?>
 <!doctype html>
@@ -22,6 +29,9 @@
     <?php
         include_once __DIR__ . '/../../layouts/header_coordinador.php'
     ?>
+
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-admin.css">
+
     <link rel="stylesheet" href="<?= BASE_URL ?>/public/assets/dashboard/css/styles-tabla-formulario.css">
     
 
@@ -45,11 +55,9 @@
                     
                 </div>
 
-                <div class="user">
-                    <button class="btn" title="Notificaciones"><i class="ri-notification-3-line"></i></button>
-                    <button class="btn" title="Configuración"><i class="ri-settings-3-line"></i></button>
-                    <div class="avatar" title="Diego A.">DA</div>
-                </div>
+                <?php
+                    include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+                ?>
             </div>
             <div class="subtitulo"><p>Formulario de registro, Completa los siguientes pasos para registrar un nuevo estudiante en el sistema académico. <br> Al finalizar, revisa la información antes de confirmar el registro para evitar errores en la base de datos institucional.</p></div>
 
@@ -227,6 +235,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+    <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>   
 
     <script src="<?=BASE_URL ?>/public/assets/dashboard/js/main-formulario.js"></script>
     <!-- JS de Choices.js (colócalo antes del cierre de body, tras otros scripts) -->

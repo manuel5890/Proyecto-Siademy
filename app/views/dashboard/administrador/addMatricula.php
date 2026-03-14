@@ -5,6 +5,14 @@
     
     $estudiantes = mostrarEstudiantes();
     $cursos = mostrarCursos();
+
+    //ENLAZAMOS LA DEPENDENCIA DEL CONTROLADOR QUE TIENE LA FUNCION PARA MOSTRAR LOS DATOS
+    require_once BASE_PATH . '/app/controllers/perfil.php';
+
+    // LLAMAMOS EL ID QUE VIENE ATRAVEZ DEL METODO GET
+    $id = $_SESSION['user']['id'];
+    // LLAMAMOS LA FUNCION ESPECIFICA DEL CONTROLADOR
+    $usuario = mostrarPerfil($id);
 ?>
 
 <!doctype html>
@@ -309,6 +317,10 @@
                     </button>
                     <div class="title">Matricular Estudiante</div>
                 </div>
+
+                <?php
+                    include_once BASE_PATH . '/app/views/layouts/boton_perfil_solo.php'
+                ?>
             </div>
 
             <?php 
@@ -452,7 +464,7 @@
 
                     <!-- BOTONES -->
                     <div class="btn-actions">
-                        <a href="<?= BASE_URL ?>/administrador/panel-matriculas" class="btn-cancel">
+                        <a href="<?= BASE_URL ?>/administrador-panel-matriculas" class="btn-cancel">
                             <i class="ri-arrow-left-line"></i> Cancelar
                         </a>
                         <button type="submit" class="btn-submit">
@@ -471,6 +483,8 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dashboard.js"></script>
+
+    <script src="<?= BASE_URL ?>/public/assets/dashboard/js/dropdown-user.js"></script>
     
     <script>
         $(document).ready(function() {
