@@ -1,4 +1,5 @@
 RewriteEngine On
+RewriteBase /siademy/
 
 # Ignora archivos o carpetas reales
 RewriteCond %{REQUEST_FILENAME} !-f
