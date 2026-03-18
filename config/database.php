@@ -1,42 +1,40 @@
 <?php
+// "Usamos una clase con propiedades privadas para guardar las credenciales de la base de datos (host, usuario, contraseña, y nombre de la DB).
 
-    // USAMOS UNA CLASE CON PROPIEDADES PRIVADAS PARA GUARDAR LAS CERDENCIALES DE
-    // LA BASE DE DATOS (HOST, USUARIO, CONTRASEÑA Y NOMBRE DE LA BASE DE DATOS.
-    
-    // LO HACEMOS ASI PARA QUE NADIE FUERA DE LA CLASE PUEDA ACCEDER O MODIFICAR ESOS DATOS.
+// Lo hacemos así para que nadie fuera de la clase pueda acceder o modificar esos datos directamente.
 
-    class Conexion{
-        private $host = "localhost";
-        private $db = "siademy";
-        private $user = "root";
-        private $pass = "";
-        private $conexion;
-    // EL CONSTRUCTOR (__construct) SE EJECUTA AUTOMATICAMENTE CUANDO CREAMOS UN OBJETO DE LA CLASE Y SE ENCARGA DE ABRIR
-    // LA CONEXION CON LA BASE DE DATOS USANDO PDO.
-        public function __construct(){
-    // LA PALABRA $this SIGNIFICA ÑITERALMENTE 'ESTA CLASE', LA USAMOS PARA ACCEDER A LAS VARIABLES INTERAS DE LA MISMA CLASE.
-    // POR EJEMPLO, $this->conexion HACE REFERENCIA A LA CONEXION QUE PEERTENECE A ESTA INSTANCIA DE LA CLASE.
-            try{
-                $this->conexion = new PDO("mysql:host={$this->host};dbname={$this->db};charset=utf8", $this->user,$this->pass);
-                $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            } catch (PDOException $e){
-                die("Error de conexion: " . $e->getMessage());
-            }
-    
-        }
-    // FINALMENTE, EL METODO getConexion() SIRVE PARA OBTENER ÑA CONEXION Y EN VEZ DE ABRIR UNA NUEVA
-    // CONEXION CADA VEZ, SIMPLEMENTE PEDIMOS LA QUE YA EXISTE DENTRO DEL OBJETO.
+class Conexion
+{
+    private $host = "localhost";
+    private $db = "siademy";
+    private $user = "root";
+    private $pass = "";
+    private $conexion;
 
-        public function getConexion(){
-            return $this->conexion;
+    // El constructor (__construct) se ejecuta automáticamente cuadno creamos un objeto  de la clase, y se encarga de abrir la conexión con la base de datos usando PDO
+
+    public function __construct()
+    {
+        // La palabra $this significa literalmente "esta clase". La usamos para acceder a las variables internas de la misma clase.
+        // Por ejemplo, $this->conexion hace referencia a la conexión que pertenece a esta instancia de la clase.
+        try {
+            $this->conexion = new PDO("mysql:host={$this->host};dbname={$this->db};charset=utf8", $this->user, $this->pass);
+            $this->conexion->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die("Error de conexión: " . $e->getMessage());
         }
     }
 
-    // EN RESUMEN:
-    // LA CLASE GUARDA LAS CREDENCIALES DE FORMA SEGURA.
-    // EL CONSTRUCTOR ABRE LA CONEXION AUTOMATICAMENTE.
-    // $this PERMITE ACCEDER A LAS VARIABLES INTERNAS DE LA CLASE.
-    // getConexion() NOS DEVUELVE LA CONEXION PARA EJECUTAR CONSULTAS.
-    // DE ESTA FROMA EL CODIGO QUEDA MAS LIMPIO, REUTILIZABLE Y FACIL DE MANTENER.
+    // Finalmente, el método getConexion() sirve para obtener la conexión ya creada. en vez de abrir una nueva conexión cada vez, simplemente pedimos la que ya existe dentro del objeto
+    public function getConexion()
+    {
+        return $this->conexion;
+    }
+}
 
-?>
+// En resumen:
+// La clase guarda las credenciales de forma segura
+// El constructor abre la conexión automáticamente
+// $this permite acceder a las variables internas de la clase
+// getConexion() nos devuelve la conexión para poder ejecutar consultas
+// De esta forma el código queda más limpio, reutilizable y fácil de mantener.
