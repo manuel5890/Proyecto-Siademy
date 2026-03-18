@@ -12,13 +12,13 @@ initSession();
 
 // Validamos si hay una sesión activa
 if (!isSessionActive()) {
-    header('Location: /siademy/login');
+    header('Location: ' . (function_exists('app_url') ? app_url('/login') : '/login'));
     exit();
 }
 
 // Validamos que el rol sea el correspondiente (Administrador)
 if (!hasRole('Administrador')) {
-    header('Location: /siademy/login');
+    header('Location: ' . (function_exists('app_url') ? app_url('/login') : '/login'));
     exit();
 }
 

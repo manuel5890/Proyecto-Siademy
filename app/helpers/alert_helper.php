@@ -1,6 +1,11 @@
 <?php 
 
     function mostrarSweetAlert($tipo, $titulo, $mensaje, $redirect = null) {
+        $redirectUrl = null;
+        if ($redirect !== null) {
+            $redirectUrl = function_exists('app_url') ? app_url($redirect) : $redirect;
+        }
+
         echo "
         <html>
             <head>
@@ -124,7 +129,7 @@
                             icon: 'swal2-icon-hide'
                         }
                     }).then((result) => {
-                        " . ($redirect ? "window.location.href = '$redirect';" : "window.history.back();") . "
+                        " . ($redirectUrl ? 'window.location.href = ' . json_encode($redirectUrl) . ';' : "window.history.back();") . "
                     });
                 </script>
 

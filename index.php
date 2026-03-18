@@ -8,25 +8,24 @@
         // Iniciar sesión
         initSession();
 
-        // OBTENER LA URI ACTUAL (POR EJEMPLO: /siademy/login)
-        $requestUri = $_SERVER['REQUEST_URI'];
+        // OBTENER SOLO EL PATH DE LA URI ACTUAL (sin query string)
+        $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/';
 
-        // QUITAR EL PREFIJO DE LA CARPETA DEL PROYECTO
-        $request = str_replace('/siademy', '', $requestUri);
+        // QUITAR EL PREFIJO REAL DE DESPLIEGUE (si existe)
+        if (APP_BASE_PATH !== '' && strpos($requestPath, APP_BASE_PATH) === 0) {
+            $requestPath = substr($requestPath, strlen(APP_BASE_PATH));
+        }
 
-        // QUITAR PARAMETROS TIPO ?id=123
-        $request = strtok($request, '?');
-
-        // QUITAR LA BARRA FINAL (SI EXISTE)
-        $request = rtrim($request, '/');
-
-        // SI LA RUTA QUEDA VACIA, SE INTERPETRA COMO "/"
-        if($request === '')$request = '/';
+        // NORMALIZAR A FORMATO /ruta
+        $request = '/' . ltrim($requestPath, '/');
+        if ($request !== '/') {
+            $request = rtrim($request, '/');
+        }
         
         // ENRUTAMIENTO BASICO
         switch($request){
             case '/':
-                require BASE_PATH . '/app/views/website/index.PHP';
+                require BASE_PATH . '/app/views/website/index.php';
                 break;
 
             // INICIO RUTAS LOGIN
