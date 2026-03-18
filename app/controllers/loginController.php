@@ -65,37 +65,37 @@
 
 
         // REDIRIGIENDO SEGUN EL ROL
-        $redireccionar = '/siademy/login';
+        $redireccionar = '/login';
         $mensaje = 'Rol inexistente. Redirigiendo al inicio de sesion....';
 
         switch($resultado['rol']){
             case 'Administrador':
-                $redireccionar = '/siademy/administrador/dashboard';
+                $redireccionar = '/administrador/dashboard';
                 $mensaje = 'Bienvenido Administrador';
                 break;
 
             case 'Docente':
-                $redireccionar = '/siademy/docente/dashboard';
+                $redireccionar = '/docente/dashboard';
                 $mensaje = 'Bienvenido docente academico';
                 break;
 
             case 'Estudiante':
-                $redireccionar = '/siademy/estudiante/dashboard';
+                $redireccionar = '/estudiante/dashboard';
                 $mensaje = 'Bienvenido estudiante academico';
                 break;
 
             case 'Acudiente':
-                $redireccionar = '/siademy/acudiente/dashboard';
+                $redireccionar = '/acudiente/dashboard';
                 $mensaje = 'Bienvenido acudiente';
                 break;
 
             case 'superAdmin':
-                $redireccionar = '/siademy/super-admin/dashboard';
+                $redireccionar = '/super-admin/dashboard';
                 $mensaje = 'Bienvenido super admin';
                 break;
 
             case 'Secretaria':
-                $redireccionar = '/siademy/secretaria-academica/dashboard';
+                $redireccionar = '/secretaria-academica/dashboard';
                 $mensaje = 'Bienvenido Secretaría Academica';
                 break;
         }

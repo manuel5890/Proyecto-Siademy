@@ -13,8 +13,7 @@ require_once BASE_PATH . '/app/helpers/session_helper.php';
 destroySession();
 
 // Redirigir al login
-$baseFolder = '/siademy';
-header('Location: ' . $baseFolder . '/login', true, 302);
+header('Location: ' . (function_exists('app_url') ? app_url('/login') : '/login'), true, 302);
 exit();
 
 ?>

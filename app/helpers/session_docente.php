@@ -12,13 +12,13 @@ initSession();
 
 // Verificamos que haya una sesión activa
 if (!isSessionActive()) {
-    header('Location: /siademy/login');
+    header('Location: ' . (function_exists('app_url') ? app_url('/login') : '/login'));
     exit();
 }
 
 // Validamos que el rol sea Docente
 if (!hasRole('Docente')) {
-    header('Location: /siademy/login');
+    header('Location: ' . (function_exists('app_url') ? app_url('/login') : '/login'));
     exit();
 }
 

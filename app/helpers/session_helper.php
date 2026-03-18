@@ -87,9 +87,10 @@ function destroySession() {
  * Redirige al login si no hay sesión activa
  * @param string $baseUrl URL base para la redirección
  */
-function redirectIfNoSession($baseUrl = '/siademy/login') {
+function redirectIfNoSession($baseUrl = '/login') {
     if (!isSessionActive()) {
-        header('Location: ' . $baseUrl);
+        $target = function_exists('app_url') ? app_url($baseUrl) : $baseUrl;
+        header('Location: ' . $target);
         exit();
     }
 }
@@ -99,9 +100,10 @@ function redirectIfNoSession($baseUrl = '/siademy/login') {
  * @param string $requiredRole El rol requerido
  * @param string $redirectUrl URL de redirección (opcional)
  */
-function redirectIfNotRole($requiredRole, $redirectUrl = '/siademy/login') {
+function redirectIfNotRole($requiredRole, $redirectUrl = '/login') {
     if (!hasRole($requiredRole)) {
-        header('Location: ' . $redirectUrl);
+        $target = function_exists('app_url') ? app_url($redirectUrl) : $redirectUrl;
+        header('Location: ' . $target);
         exit();
     }
 }
