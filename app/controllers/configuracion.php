@@ -27,4 +27,5 @@ if (!$usuario) {
 $activeTab = 'edit-profile'; // Esta variable estará disponible en la vista
 require BASE_PATH . '/app/views/dashboard/usuario/perfil.php';
 
+
 ?>
